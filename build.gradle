@@ -2,6 +2,7 @@ plugins {
 	id 'org.springframework.boot' version '2.3.2.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
 	id 'java'
+	id 'jacoco'
 }
 
 group = 'com.learn'
@@ -33,10 +34,15 @@ dependencies {
 
 test {
 	useJUnitPlatform()
+	finalizedBy jacocoTestReport // report is always generated after tests run
 }
 
 sourceSets{
 	test{
 		java.srcDirs = ['src/test/java/unitTesting','src/test/java/integrationTesting']
 	}
+}
+
+jacocoTestReport {
+	dependsOn test // tests are required to run before generating the report
 }
