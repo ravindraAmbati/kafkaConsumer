@@ -72,7 +72,7 @@ class LibraryEventServiceUnitTest {
                 .build();
         consumerRecord = new ConsumerRecord<>(kafkaTopic, 3, 0, libraryEvent.getLibraryEventId(), objectMapper.writeValueAsString(libraryEvent));
         when(objectMapperMock.readValue(consumerRecord.value(), LibraryEvent.class)).thenReturn(libraryEvent);
-        assertThrows(IllegalArgumentException.class, () -> testClass.processLibraryEvent(consumerRecord), "LibraryEventId should be null for new library events");
+        assertThrows(IllegalArgumentException.class, () -> testClass.processLibraryEvent(consumerRecord), () -> "LibraryEventId should be null for new library events");
     }
 
     @Test
@@ -89,13 +89,13 @@ class LibraryEventServiceUnitTest {
                 .build();
         consumerRecord = new ConsumerRecord<>(kafkaTopic, 3, 0, libraryEvent.getLibraryEventId(), objectMapper.writeValueAsString(libraryEvent));
         when(objectMapperMock.readValue(consumerRecord.value(), LibraryEvent.class)).thenReturn(libraryEvent);
-        assertThrows(IllegalArgumentException.class, () -> testClass.processLibraryEvent(consumerRecord), "BookId should be null for new library events");
+        assertThrows(IllegalArgumentException.class, () -> testClass.processLibraryEvent(consumerRecord), () -> "BookId should be null for new library events");
     }
 
     @Test
     void processUpdateLibraryEvent_bookIdNull() throws JsonProcessingException {
         book = Book.builder()
-                .bookId(123)
+                .bookId(null)
                 .name("aName")
                 .author("anAuthor")
                 .build();
@@ -106,7 +106,7 @@ class LibraryEventServiceUnitTest {
                 .build();
         consumerRecord = new ConsumerRecord<>(kafkaTopic, 3, 0, libraryEvent.getLibraryEventId(), objectMapper.writeValueAsString(libraryEvent));
         when(objectMapperMock.readValue(consumerRecord.value(), LibraryEvent.class)).thenReturn(libraryEvent);
-        assertThrows(IllegalArgumentException.class, () -> testClass.processLibraryEvent(consumerRecord), "BookId should not be null for update library events");
+        assertThrows(IllegalArgumentException.class, () -> testClass.processLibraryEvent(consumerRecord), () -> "BookId should not be null for update library events");
     }
 
     @Test
@@ -124,7 +124,7 @@ class LibraryEventServiceUnitTest {
         consumerRecord = new ConsumerRecord<>(kafkaTopic, 3, 0, libraryEvent.getLibraryEventId(), objectMapper.writeValueAsString(libraryEvent));
         when(objectMapperMock.readValue(consumerRecord.value(), LibraryEvent.class)).thenReturn(libraryEvent);
         when(booKJpaRepo.findById(book.getBookId())).thenReturn(Optional.empty());
-        assertThrows(IllegalArgumentException.class, () -> testClass.processLibraryEvent(consumerRecord), "Provided Book Id is missing");
+        assertThrows(IllegalArgumentException.class, () -> testClass.processLibraryEvent(consumerRecord), () -> "Provided Book Id is missing");
     }
 
     @Test
