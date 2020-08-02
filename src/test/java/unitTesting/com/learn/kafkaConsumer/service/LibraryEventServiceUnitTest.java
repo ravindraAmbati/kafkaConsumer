@@ -93,6 +93,23 @@ class LibraryEventServiceUnitTest {
     }
 
     @Test
+    void processUpdateLibraryEvent_libraryEventIdNotNull() throws JsonProcessingException {
+        book = Book.builder()
+                .bookId(123)
+                .name("aName")
+                .author("anAuthor")
+                .build();
+        libraryEvent = LibraryEvent.builder()
+                .libraryEventId(null)
+                .libraryEventType(LibraryEventType.UPDATE)
+                .book(book)
+                .build();
+        consumerRecord = new ConsumerRecord<>(kafkaTopic, 3, 0, libraryEvent.getLibraryEventId(), objectMapper.writeValueAsString(libraryEvent));
+        when(objectMapperMock.readValue(consumerRecord.value(), LibraryEvent.class)).thenReturn(libraryEvent);
+        assertThrows(IllegalArgumentException.class, () -> testClass.processLibraryEvent(consumerRecord), () -> "LibraryEventId should not be null for update library events");
+    }
+
+    @Test
     void processUpdateLibraryEvent_bookIdNull() throws JsonProcessingException {
         book = Book.builder()
                 .bookId(null)
@@ -117,7 +134,7 @@ class LibraryEventServiceUnitTest {
                 .author("anAuthor")
                 .build();
         libraryEvent = LibraryEvent.builder()
-                .libraryEventId(null)
+                .libraryEventId(123)
                 .libraryEventType(LibraryEventType.UPDATE)
                 .book(book)
                 .build();
@@ -135,7 +152,7 @@ class LibraryEventServiceUnitTest {
                 .author("anAuthor")
                 .build();
         libraryEvent = LibraryEvent.builder()
-                .libraryEventId(null)
+                .libraryEventId(123)
                 .libraryEventType(LibraryEventType.UPDATE)
                 .book(book)
                 .build();
@@ -173,7 +190,7 @@ class LibraryEventServiceUnitTest {
                 .author("anAuthor")
                 .build();
         libraryEvent = LibraryEvent.builder()
-                .libraryEventId(null)
+                .libraryEventId(123)
                 .libraryEventType(LibraryEventType.UPDATE)
                 .book(book)
                 .build();
