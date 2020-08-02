@@ -48,9 +48,12 @@ public class LibraryEventService {
             if (null != libraryEventId) {
                 throw new IllegalArgumentException("LibraryEventId should be null for new library events");
             }
+            if (null != bookId) {
+                throw new IllegalArgumentException("BookId should be null for new library events");
+            }
         } else if (LibraryEventType.UPDATE.equals(libraryEventType)) {
             if (null == bookId) {
-                throw new IllegalArgumentException("LibraryEventId should not be null for update library events");
+                throw new IllegalArgumentException("BookId should not be null for update library events");
             } else {
                 Optional<Book> optionalBook = booKJpaRepo.findById(bookId);
                 if (optionalBook.isEmpty()) {

@@ -5,10 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,6 +15,7 @@ import javax.persistence.OneToOne;
 public class Book {
 
     @Id
+    @GeneratedValue
     private Integer bookId;
     private String name;
     private String author;
