@@ -54,7 +54,7 @@ public class LibraryEventService {
             } else {
                 Optional<Book> optionalBook = booKJpaRepo.findById(bookId);
                 if (optionalBook.isEmpty()) {
-                    throw new IllegalArgumentException("Provided Library Event Id is missing");
+                    throw new IllegalArgumentException("Provided Book Id is missing");
                 }
             }
         }
