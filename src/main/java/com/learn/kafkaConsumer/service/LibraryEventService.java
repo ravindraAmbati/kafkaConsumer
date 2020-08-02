@@ -35,9 +35,15 @@ public class LibraryEventService {
 
     private void processLibraryEvent(LibraryEvent libraryEvent) {
         validate(libraryEvent);
-        log.info("libraryEvent: {}", libraryEvent);
         libraryEvent.getBook().setLibraryEvent(libraryEvent);
+        log.info("book: {}", libraryEvent.getBook());
         libraryEventJpaRepo.save(libraryEvent);
+        libraryEventJpaRepo.findAll().forEach(
+                event -> log.info("libraryEvent: {}", event)
+        );
+        booKJpaRepo.findAll().forEach(
+                book -> log.info("book: {}", book)
+        );
     }
 
     private void validate(LibraryEvent libraryEvent) {
