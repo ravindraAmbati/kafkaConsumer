@@ -30,6 +30,9 @@ public class LibraryEventsConsumerConfig {
                 .getIfAvailable(() -> new DefaultKafkaConsumerFactory<>(this.kafkaProperties.buildConsumerProperties())));
         factory.setConcurrency(3);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+        factory.setErrorHandler(((thrownException, data) -> {
+            log.error("message: {}, key: {} and value: {}", thrownException.getMessage(), data.key(), data.value());
+        }));
         return factory;
     }
 }

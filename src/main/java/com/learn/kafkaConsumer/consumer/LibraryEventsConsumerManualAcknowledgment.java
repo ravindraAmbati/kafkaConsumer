@@ -1,7 +1,7 @@
 package com.learn.kafkaConsumer.consumer;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.learn.kafkaConsumer.service.LibraryEventService;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +17,17 @@ public class LibraryEventsConsumerManualAcknowledgment implements AcknowledgingM
     @Autowired
     LibraryEventService libraryEventService;
 
-    @SneakyThrows
+
     @Override
     @KafkaListener(topics = {"local-library-events", "default-library-events"})
     public void onMessage(ConsumerRecord<Integer, String> consumerRecord, Acknowledgment acknowledgment) {
         log.info("Consumer Record: {}", consumerRecord);
-        libraryEventService.processLibraryEvent(consumerRecord);
+        try {
+            libraryEventService.processLibraryEvent(consumerRecord);
+        } catch (JsonProcessingException e) {
+            log.error(e.getMessage());
+        }
         acknowledgment.acknowledge();
-        log.error("Acknowledged");
+        log.info("Acknowledged");
     }
 }
