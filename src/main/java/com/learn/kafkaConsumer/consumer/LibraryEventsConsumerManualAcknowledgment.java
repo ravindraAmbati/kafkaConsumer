@@ -19,10 +19,12 @@ public class LibraryEventsConsumerManualAcknowledgment implements AcknowledgingM
     @Autowired
     LibraryEventService libraryEventService;
 
+    private static long messageCount = 0;
 
     @Override
     @KafkaListener(topics = {"local-library-events", "default-library-events"})
     public void onMessage(ConsumerRecord<Integer, String> consumerRecord, Acknowledgment acknowledgment) {
+        log.info("Message Count: {}", ++messageCount);
         log.info("Consumer Record: {}", consumerRecord);
         try {
             libraryEventService.processLibraryEvent(consumerRecord);

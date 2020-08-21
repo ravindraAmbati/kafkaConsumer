@@ -17,8 +17,11 @@ public class LibraryEventsConsumer {
     @Autowired
     LibraryEventService libraryEventService;
 
+    private static long messageCount = 0;
+
     @KafkaListener(topics = {"local-library-events", "default-library-events"})
     public void onMessage(ConsumerRecord<Integer, String> consumerRecord) throws JsonProcessingException {
+        log.info("Message Count: {}", ++messageCount);
         log.info("Consumer Record: {}", consumerRecord);
         libraryEventService.processLibraryEvent(consumerRecord);
         log.info("successfully processed");

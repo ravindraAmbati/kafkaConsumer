@@ -12,6 +12,10 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.retry.RetryPolicy;
+import org.springframework.retry.backoff.FixedBackOffPolicy;
+import org.springframework.retry.policy.SimpleRetryPolicy;
+import org.springframework.retry.support.RetryTemplate;
 
 @Configuration
 @EnableKafka
@@ -33,6 +37,26 @@ public class LibraryEventsConsumerConfig {
         factory.setErrorHandler(((thrownException, data) -> {
             log.error("message: {}, key: {} and value: {}", thrownException.getMessage(), data.key(), data.value());
         }));
+        factory.setRetryTemplate(retryTemplate());
         return factory;
+    }
+
+    private RetryTemplate retryTemplate() {
+        RetryTemplate retryTemplate = new RetryTemplate();
+        retryTemplate.setBackOffPolicy(backOffPolicy());
+        retryTemplate.setRetryPolicy(retryPolicy());
+        return retryTemplate;
+    }
+
+    private RetryPolicy retryPolicy() {
+        SimpleRetryPolicy simpleRetryPolicy = new SimpleRetryPolicy();
+        simpleRetryPolicy.setMaxAttempts(3);
+        return simpleRetryPolicy;
+    }
+
+    private FixedBackOffPolicy backOffPolicy() {
+        FixedBackOffPolicy fixedBackOffPolicy = new FixedBackOffPolicy();
+        fixedBackOffPolicy.setBackOffPeriod(3000);
+        return fixedBackOffPolicy;
     }
 }

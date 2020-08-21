@@ -2,7 +2,7 @@ server:
   port: 8081
 spring:
   profiles:
-    active: local,nonAck
+    active: local,ack
 
 ---
 spring:
