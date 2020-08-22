@@ -1,6 +1,8 @@
 package com.learn.kafkaConsumer.config;
 
+import com.learn.kafkaConsumer.service.LibraryEventService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.kafka.ConcurrentKafkaListenerContainerFactoryConfigurer;
@@ -29,6 +31,9 @@ public class LibraryEventsConsumerConfig {
     @Autowired
     KafkaProperties kafkaProperties;
 
+    @Autowired
+    LibraryEventService libraryEventService;
+
     @Bean
     ConcurrentKafkaListenerContainerFactory<?, ?> kafkaListenerContainerFactory(
             ConcurrentKafkaListenerContainerFactoryConfigurer configurer,
@@ -42,6 +47,23 @@ public class LibraryEventsConsumerConfig {
             log.error("message: {}, key: {} and value: {}", thrownException.getMessage(), data.key(), data.value());
         }));
         factory.setRetryTemplate(retryTemplate());
+        factory.setRecoveryCallback(context -> {
+            if (context.getLastThrowable().getCause() instanceof RecoverableDataAccessException) {
+                log.warn("it's Recoverable");
+                // uncomment to see all contexts
+//                Arrays.asList(context.attributeNames())
+//                        .forEach(attributeName ->{
+//                            log.warn("attribute name: {}", attributeName);
+//                            log.warn("context of attribute: {}",context.getAttribute(attributeName));
+//                        });
+                ConsumerRecord<Integer, String> consumerRecord = (ConsumerRecord<Integer, String>) context.getAttribute("record");
+                libraryEventService.handleRecovery(consumerRecord);
+            } else {
+                log.error("it can't recoverable");
+                throw new RuntimeException("Inside Recoverable, but can't be recoverable");
+            }
+            return null;
+        });
         return factory;
     }
 

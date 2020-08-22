@@ -11,7 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.RecoverableDataAccessException;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
+import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import java.util.Optional;
 
@@ -27,6 +31,9 @@ public class LibraryEventService {
 
     @Autowired
     BooKJpaRepo booKJpaRepo;
+
+    @Autowired
+    KafkaTemplate<Integer, String> kafkaTemplate;
 
     public void processLibraryEvent(ConsumerRecord<Integer, String> consumerRecord) throws JsonProcessingException {
         log.info("consumerRecord: {}", consumerRecord);
@@ -75,4 +82,19 @@ public class LibraryEventService {
         }
     }
 
+    public void handleRecovery(ConsumerRecord<Integer, String> consumerRecord) {
+        log.warn("consumerRecord: {}", consumerRecord);
+        ListenableFuture<SendResult<Integer, String>> listenableFuture = kafkaTemplate.sendDefault(consumerRecord.key(), consumerRecord.value());
+        listenableFuture.addCallback(new ListenableFutureCallback<>() {
+            @Override
+            public void onSuccess(SendResult<Integer, String> result) {
+                log.warn("Message sent successfully result: {}", result);
+            }
+
+            @Override
+            public void onFailure(Throwable ex) {
+                log.error("failed to send message");
+            }
+        });
+    }
 }
