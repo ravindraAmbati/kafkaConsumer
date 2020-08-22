@@ -10,6 +10,7 @@ import com.learn.kafkaConsumer.repository.jpa.LibraryEventJpaRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -50,6 +51,9 @@ public class LibraryEventService {
         Integer libraryEventId = libraryEvent.getLibraryEventId();
         LibraryEventType libraryEventType = libraryEvent.getLibraryEventType();
         Integer bookId = libraryEvent.getBook().getBookId();
+        if (null != libraryEventId && libraryEventId == 0) {
+            throw new RecoverableDataAccessException("for testing purpose only");
+        }
         if (LibraryEventType.NEW.equals(libraryEventType)) {
             if (null != libraryEventId) {
                 throw new IllegalArgumentException("LibraryEventId should be null for new library events");

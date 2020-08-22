@@ -125,6 +125,24 @@ class LibraryEventsConsumerIntegrationTest {
 
     @Test
     @Timeout(60)
+    void processNewLibraryEvent_libraryEventIdZero() throws JsonProcessingException, InterruptedException, ExecutionException {
+        Thread.sleep(10000);
+        Book book = Book.builder()
+                .bookId(123)
+                .name("aName")
+                .author("anAuthor")
+                .build();
+        LibraryEvent libraryEvent = LibraryEvent.builder()
+                .libraryEventId(0)
+                .libraryEventType(LibraryEventType.NEW)
+                .book(book)
+                .build();
+        String libraryEventValue = objectMapper.writeValueAsString(libraryEvent);
+        kafkaTemplate.sendDefault(libraryEventValue).get();
+    }
+
+    @Test
+    @Timeout(60)
     public void publishUpdateLibraryEvent() throws JsonProcessingException, ExecutionException, InterruptedException {
         Thread.sleep(10000);
         Book expectedBook = Book.builder()
