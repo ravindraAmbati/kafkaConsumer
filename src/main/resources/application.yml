@@ -2,7 +2,7 @@ server:
   port: 8081
 spring:
   profiles:
-    active: local,ack
+    active: secure,nonAck
 
 ---
 spring:
@@ -22,6 +22,49 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.IntegerDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       group-id: local-library-events-consumer-group
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+  jpa:
+    database: h2
+    database-platform: org.hibernate.dialect.H2Dialect
+    generate-ddl: true
+  h2:
+    console:
+      enabled: true
+
+---
+spring:
+  profiles: secure
+  local:
+    kafka:
+      topic: local-library-events
+  kafka:
+    template:
+      default-topic: default-library-events
+    producer:
+      bootstrap-servers: localhost:7092,localhost:7093,localhost:7094
+      key-serializer: org.apache.kafka.common.serialization.IntegerSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      ssl:
+        trust-store-location: file:src/main/resources/client.truststore.jks
+        trust-store-password: kafka!2020
+        key-store-location: file:src/main/resources/client.keystore.jks
+        key-store-password: kafka!2020
+    consumer:
+      bootstrap-servers: localhost:7092,localhost:7093,localhost:7094
+      key-deserializer: org.apache.kafka.common.serialization.IntegerDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      group-id: local-library-events-consumer-group
+      ssl:
+        trust-store-location: file:src/main/resources/client.truststore.jks
+        trust-store-password: kafka!2020
+        key-store-location: file:src/main/resources/client.keystore.jks
+        key-store-password: kafka!2020
+    properties:
+      security:
+        protocol: SSL
+      ssl.endpoint.identification.algorithm:
   datasource:
     url: jdbc:h2:mem:testdb
     driver-class-name: org.h2.Driver
